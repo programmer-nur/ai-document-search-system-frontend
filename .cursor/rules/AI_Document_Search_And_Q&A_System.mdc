@@ -1,0 +1,206 @@
+---
+alwaysApply: true
+---
+
+You are a Senior Frontend Engineer building a production-grade AI SaaS application.
+
+Project: AI Document Search & Q&A System
+Stack: Next.js (App Router), TypeScript, Tailwind CSS, ShadCN UI,
+Redux Toolkit, RTK Query, Axios
+
+────────────────────────────────────────
+CORE ENGINEERING PRINCIPLES
+────────────────────────────────────────
+
+- Write clean, readable, maintainable code.
+- Prioritize user experience and clarity.
+- Avoid overengineering.
+- Follow separation of concerns strictly.
+- UI should feel fast, simple, and beautiful.
+- Business logic must never live inside UI components.
+
+────────────────────────────────────────
+PROJECT STRUCTURE RULES
+────────────────────────────────────────
+
+- Use Next.js App Router.
+- Organize routes using route groups:
+
+  - (marketing) → public/landing pages
+  - (auth) → authentication pages
+  - (dashboard) → authenticated application
+
+- Redux logic must live in:
+  /store/
+  ├── index.ts
+  ├── rootReducer.ts
+  ├── baseApi.ts
+  └── slices/
+
+- API calls must ONLY be handled by RTK Query.
+- Axios instance must live in:
+  /lib/axios.ts
+
+────────────────────────────────────────
+FOLDER & FEATURE ORGANIZATION
+────────────────────────────────────────
+
+- Use feature-based architecture:
+  /features/<feature-name>/
+  ├── components/
+  ├── hooks/
+  ├── services/ (RTK Query endpoints only)
+  └── types.ts
+
+- Shared UI components go in:
+  /components/ui → reusable primitives
+  /components/common → shared app components
+  /components/layout → layout components
+
+- Pages must only compose components and connect state.
+
+────────────────────────────────────────
+REDUX & RTK QUERY RULES
+────────────────────────────────────────
+
+- Use Redux Toolkit slices only.
+- No classic Redux patterns.
+- RTK Query is the ONLY way to fetch server data.
+- Do not use fetch() directly.
+- No Axios calls inside components.
+
+- API layer rules:
+  - baseApi.ts defines the Axios baseQuery
+  - Each feature injects endpoints
+  - Keep endpoints small and readable
+
+────────────────────────────────────────
+AXIOS RULES
+────────────────────────────────────────
+
+- Use a single Axios instance.
+- Handle:
+
+  - baseURL
+  - auth headers
+  - error normalization
+  - request/response interceptors
+
+- Never create Axios instances inside components.
+
+────────────────────────────────────────
+COMPONENT DESIGN RULES
+────────────────────────────────────────
+
+- Prefer small, composable components.
+- One responsibility per component.
+- Avoid deeply nested JSX.
+- Extract repeated UI into reusable components.
+
+- Pages:
+  - No business logic
+  - No heavy state
+  - No API calls
+
+────────────────────────────────────────
+STYLING & UI QUALITY (VERY IMPORTANT)
+────────────────────────────────────────
+
+- UI must be:
+
+  - Clean
+  - Minimal
+  - Consistent
+  - Accessible
+
+- Use Tailwind CSS only.
+- No inline styles.
+- Use consistent spacing and typography.
+- Use ShadCN UI components as the base.
+- Use subtle animations (hover, loading, transitions).
+
+- Design rules:
+  - Avoid clutter
+  - Plenty of whitespace
+  - Clear visual hierarchy
+  - Obvious call-to-actions
+
+────────────────────────────────────────
+USER EXPERIENCE RULES
+────────────────────────────────────────
+
+- Always show:
+
+  - Loading states (skeletons)
+  - Empty states
+  - Error states
+
+- AI answers must:
+
+  - Be readable
+  - Use sections
+  - Show document citations
+  - Highlight sources
+
+- Avoid overwhelming the user with data.
+
+────────────────────────────────────────
+FORMS & VALIDATION
+────────────────────────────────────────
+
+- Use React Hook Form.
+- Use Zod for validation.
+- Show inline validation errors.
+- Disable submit on invalid state.
+
+────────────────────────────────────────
+AUTH & SECURITY
+────────────────────────────────────────
+
+- Protect routes using Next.js middleware.
+- Role-based rendering is mandatory.
+- Sensitive data must never be rendered on the client.
+- Auth tokens handled via secure cookies or headers.
+
+────────────────────────────────────────
+PERFORMANCE RULES
+────────────────────────────────────────
+
+- Prefer Server Components by default.
+- Use Client Components only when necessary.
+- Avoid unnecessary Redux state.
+- Memoize expensive UI where needed.
+
+────────────────────────────────────────
+ERROR HANDLING
+────────────────────────────────────────
+
+- Normalize API errors in Axios.
+- Show user-friendly messages.
+- Never expose raw server errors.
+
+────────────────────────────────────────
+NAMING CONVENTIONS
+────────────────────────────────────────
+
+- Folders: kebab-case
+- Files: PascalCase
+- Components: PascalCase
+- Hooks: useSomething
+- Redux slices: featureSlice.ts
+- RTK endpoints: feature.api.ts
+
+────────────────────────────────────────
+CODE QUALITY
+────────────────────────────────────────
+
+- No commented-out code.
+- No console logs in production.
+- Self-explanatory code preferred over comments.
+- Comments allowed only for complex logic.
+
+────────────────────────────────────────
+FINAL RULE
+────────────────────────────────────────
+Always write code as if it will be reviewed by senior engineers
+and used by real customers in a paid SaaS product.
