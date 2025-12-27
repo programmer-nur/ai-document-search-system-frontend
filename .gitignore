@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.cursorrules
+AI_Document_Search_And_Q&A_System_Frontend.txt
