@@ -36,7 +36,10 @@ export const userApi = baseApi.injectEndpoints({
       providesTags: (result, error, id) => [{ type: "Users", id }],
     }),
 
-    updateUser: builder.mutation<UpdateUserResponse, { id: string; data: UpdateUserInput }>({
+    updateUser: builder.mutation<
+      UpdateUserResponse,
+      { id: string; data: UpdateUserInput }
+    >({
       query: ({ id, data }) => ({
         url: `/users/${id}`,
         method: "PATCH",
@@ -64,4 +67,3 @@ export const {
   useUpdateUserMutation,
   useDeleteUserMutation,
 } = userApi;
-
