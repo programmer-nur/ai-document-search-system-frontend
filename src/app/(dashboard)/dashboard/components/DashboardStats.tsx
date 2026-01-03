@@ -1,7 +1,7 @@
 "use client";
 
 import { FileText, Search, MessageSquare, Database } from "lucide-react";
-import { StatsCard } from "@/components/dashboard";
+import { StatsCard } from "./StatsCard";
 
 interface DashboardStatsProps {
   stats: {

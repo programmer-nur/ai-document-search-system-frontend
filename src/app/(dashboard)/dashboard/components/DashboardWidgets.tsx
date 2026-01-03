@@ -1,10 +1,8 @@
 "use client";
 
-import {
-  ProcessingStatusWidget,
-  RecentQueriesWidget,
-  StorageUsageWidget,
-} from "@/components/dashboard";
+import { ProcessingStatusWidget } from "./ProcessingStatusWidget";
+import { RecentQueriesWidget } from "./RecentQueriesWidget";
+import { StorageUsageWidget } from "./StorageUsageWidget";
 import type { Document } from "@/types/document.types";
 import type { QueryHistoryItem } from "@/types/search.types";
 

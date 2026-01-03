@@ -192,10 +192,5 @@ This is a production-grade SaaS application. Code should be:
 - Tested where applicable
 - Following the established patterns
 
-## 📄 License
-
-[Add your license here]
-
----
 
 Built with ❤️ for enterprise document intelligence
