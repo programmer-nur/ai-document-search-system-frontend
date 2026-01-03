@@ -33,11 +33,7 @@ export function ChatMessage({ message, onFollowUpClick }: ChatMessageProps) {
         <AvatarFallback
           className={isUser ? "bg-primary text-primary-foreground" : "bg-muted"}
         >
-          {isUser ? (
-            <User className="h-4 w-4" />
-          ) : (
-            <Bot className="h-4 w-4" />
-          )}
+          {isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
         </AvatarFallback>
       </Avatar>
 
@@ -48,9 +44,7 @@ export function ChatMessage({ message, onFollowUpClick }: ChatMessageProps) {
       >
         <Card
           className={`p-4 ${
-            isUser
-              ? "bg-primary text-primary-foreground"
-              : "bg-muted"
+            isUser ? "bg-primary text-primary-foreground" : "bg-muted"
           }`}
         >
           {message.isLoading ? (
@@ -59,7 +53,7 @@ export function ChatMessage({ message, onFollowUpClick }: ChatMessageProps) {
               <span className="text-sm">Thinking...</span>
             </div>
           ) : (
-            <div className="prose prose-sm dark:prose-invert max-w-none">
+            <div className="max-w-none">
               {isUser ? (
                 <p className="text-sm whitespace-pre-wrap">{message.content}</p>
               ) : (
@@ -88,4 +82,3 @@ export function ChatMessage({ message, onFollowUpClick }: ChatMessageProps) {
     </div>
   );
 }
-
