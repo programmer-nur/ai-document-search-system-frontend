@@ -96,6 +96,20 @@ export const documentApi = baseApi.injectEndpoints({
         "Documents",
       ],
     }),
+
+    reindexDocument: builder.mutation<
+      { success: boolean; statusCode: number; message: string; data: null },
+      string
+    >({
+      query: (id) => ({
+        url: `/documents/${id}/reindex`,
+        method: "POST",
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Documents", id },
+        "Documents",
+      ],
+    }),
   }),
 });
 
@@ -107,5 +121,6 @@ export const {
   useGetDocumentByIdQuery,
   useUpdateDocumentMutation,
   useDeleteDocumentMutation,
+  useReindexDocumentMutation,
 } = documentApi;
 
