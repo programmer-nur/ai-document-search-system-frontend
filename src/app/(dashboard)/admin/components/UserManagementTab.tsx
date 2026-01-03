@@ -67,20 +67,11 @@ export function UserManagementTab() {
   const meta = usersData?.meta;
 
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
-    try {
-      await updateUser({
-        id: userId,
-        data: { isActive: true }, // Keep user active when changing role
-      }).unwrap();
-      toast.success("Role updated", {
-        description: "User role has been updated successfully.",
-      });
-      refetch();
-    } catch (error: any) {
-      toast.error("Update failed", {
-        description: error?.data?.message || "Failed to update user role.",
-      });
-    }
+    // Note: Role updates may require a separate backend endpoint
+    // For now, this is a placeholder that shows the UI is ready
+    toast.info("Role update", {
+      description: "Role assignment requires backend API support. This feature will be available once the role update endpoint is implemented.",
+    });
   };
 
   const handleStatusToggle = async (user: User) => {
