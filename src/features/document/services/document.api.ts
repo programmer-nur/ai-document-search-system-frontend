@@ -14,7 +14,10 @@ import type {
 
 export const documentApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getUploadUrl: builder.query<GetUploadUrlResponse, { workspaceId: string; params: GetUploadUrlParams }>({
+    getUploadUrl: builder.query<
+      GetUploadUrlResponse,
+      { workspaceId: string; params: GetUploadUrlParams }
+    >({
       query: ({ workspaceId, params }) => ({
         url: `/workspaces/${workspaceId}/documents/upload-url`,
         method: "GET",
@@ -54,7 +57,9 @@ export const documentApi = baseApi.injectEndpoints({
               ...(params.search && { search: params.search }),
               ...(params.type && { type: params.type }),
               ...(params.status && { status: params.status }),
-              ...(params.ingestionStatus && { ingestionStatus: params.ingestionStatus }),
+              ...(params.ingestionStatus && {
+                ingestionStatus: params.ingestionStatus,
+              }),
             }
           : undefined,
       }),
@@ -123,4 +128,3 @@ export const {
   useDeleteDocumentMutation,
   useReindexDocumentMutation,
 } = documentApi;
-

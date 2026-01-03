@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, Image as ImageIcon, Download } from "lucide-react";
+import { FileText, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,8 +44,6 @@ export function DocumentPreview({
     );
   }
 
-  const isImage = document.type === DocumentType.PDF || 
-    document.thumbnailUrl !== null;
 
   const renderPreview = () => {
     if (document.s3Url) {
