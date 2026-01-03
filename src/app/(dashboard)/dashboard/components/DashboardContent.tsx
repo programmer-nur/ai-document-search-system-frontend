@@ -1,20 +1,16 @@
 "use client";
 
 import { useMemo } from "react";
-import { FileText, Search, MessageSquare, Database } from "lucide-react";
-import {
-  StatsCard,
-  ProcessingStatusWidget,
-  RecentQueriesWidget,
-  StorageUsageWidget,
-} from "@/components/dashboard";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
 import { useGetWorkspacesQuery } from "@/features/workspace/services";
 import { useGetDocumentsQuery } from "@/features/document/services";
 import { useGetQueryHistoryQuery } from "@/features/search/services";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent } from "@/components/ui/card";
+import { DashboardHeader } from "./DashboardHeader";
+import { DashboardStats } from "./DashboardStats";
+import { DashboardWidgets } from "./DashboardWidgets";
 
-export default function DashboardPage() {
+export function DashboardContent() {
   const { data: workspacesData, isLoading: isLoadingWorkspaces } =
     useGetWorkspacesQuery({ limit: 1 });
 
@@ -53,12 +49,14 @@ export default function DashboardPage() {
     const totalStorage = documents.reduce((sum, doc) => {
       return sum + (parseInt(doc.size) || 0);
     }, 0);
+    const aiQuestionsCount = queries.filter((q) => q.type === "QUESTION").length;
 
     return {
       totalDocuments,
       processedDocuments,
       totalQueries,
       totalStorage,
+      aiQuestionsCount,
     };
   }, [documents, queries]);
 
@@ -97,63 +95,20 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Overview of your documents, queries, and storage usage
-        </p>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatsCard
-          title="Total Documents"
-          value={stats.totalDocuments}
-          icon={FileText}
-          description={`${stats.processedDocuments} processed`}
-          isLoading={isLoading}
-        />
-        <StatsCard
-          title="Total Queries"
-          value={stats.totalQueries}
-          icon={Search}
-          description="Searches and questions"
-          isLoading={isLoadingQueries}
-        />
-        <StatsCard
-          title="AI Questions"
-          value={queries.filter((q) => q.type === "QUESTION").length}
-          icon={MessageSquare}
-          description="Questions answered"
-          isLoading={isLoadingQueries}
-        />
-        <StatsCard
-          title="Storage Used"
-          value={
-            stats.totalStorage > 0
-              ? `${(stats.totalStorage / 1024 / 1024).toFixed(2)} MB`
-              : "0 MB"
-          }
-          icon={Database}
-          description="Total document size"
-          isLoading={isLoading}
-        />
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <ProcessingStatusWidget
-          documents={documents}
-          isLoading={isLoading}
-        />
-        <RecentQueriesWidget
-          queries={queries}
-          isLoading={isLoadingQueries}
-          workspaceId={workspaceId}
-        />
-        <StorageUsageWidget
-          totalSize={stats.totalStorage}
-          isLoading={isLoading}
-        />
-      </div>
+      <DashboardHeader />
+      <DashboardStats
+        stats={stats}
+        isLoading={isLoading}
+        isLoadingQueries={isLoadingQueries}
+      />
+      <DashboardWidgets
+        documents={documents}
+        queries={queries}
+        totalStorage={stats.totalStorage}
+        isLoading={isLoading}
+        isLoadingQueries={isLoadingQueries}
+        workspaceId={workspaceId}
+      />
     </div>
   );
 }
