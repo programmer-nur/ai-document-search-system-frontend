@@ -12,7 +12,7 @@ export const searchApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     search: builder.mutation<SearchApiResponse, { workspaceId: string; data: SearchInput }>({
       query: ({ workspaceId, data }) => ({
-        url: `/workspaces/${workspaceId}/search`,
+        url: `/search/workspaces/${workspaceId}/search`,
         method: "POST",
         data,
       }),
@@ -27,7 +27,7 @@ export const searchApi = baseApi.injectEndpoints({
       { workspaceId: string; data: QuestionInput }
     >({
       query: ({ workspaceId, data }) => ({
-        url: `/workspaces/${workspaceId}/question`,
+        url: `/search/workspaces/${workspaceId}/question`,
         method: "POST",
         data,
       }),
@@ -42,7 +42,7 @@ export const searchApi = baseApi.injectEndpoints({
       { workspaceId: string; params?: QueryHistoryParams }
     >({
       query: ({ workspaceId, params }) => ({
-        url: `/workspaces/${workspaceId}/queries`,
+        url: `/search/workspaces/${workspaceId}/queries`,
         method: "GET",
         params: params
           ? {

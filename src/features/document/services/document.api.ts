@@ -19,7 +19,7 @@ export const documentApi = baseApi.injectEndpoints({
       { workspaceId: string; params: GetUploadUrlParams }
     >({
       query: ({ workspaceId, params }) => ({
-        url: `/workspaces/${workspaceId}/documents/upload-url`,
+        url: `/documents/workspaces/${workspaceId}/documents/upload-url`,
         method: "GET",
         params: {
           fileName: params.fileName,
@@ -33,7 +33,7 @@ export const documentApi = baseApi.injectEndpoints({
       { workspaceId: string; data: CreateDocumentInput }
     >({
       query: ({ workspaceId, data }) => ({
-        url: `/workspaces/${workspaceId}/documents`,
+        url: `/documents/workspaces/${workspaceId}/documents`,
         method: "POST",
         data,
       }),
@@ -48,7 +48,7 @@ export const documentApi = baseApi.injectEndpoints({
       { workspaceId: string; params?: DocumentQueryParams }
     >({
       query: ({ workspaceId, params }) => ({
-        url: `/workspaces/${workspaceId}/documents`,
+        url: `/documents/workspaces/${workspaceId}/documents`,
         method: "GET",
         params: params
           ? {
