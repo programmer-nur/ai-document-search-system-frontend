@@ -64,6 +64,19 @@ function formatFileSize(bytes: string): string {
   return `${parseFloat((size / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 }
 
+function safeFormatDistance(dateString: string | null | undefined): string {
+  if (!dateString) return "N/A";
+
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return "Invalid date";
+  }
+
+  return formatDistanceToNow(date, {
+    addSuffix: true,
+  });
+}
+
 export function DocumentsTable({
   documents,
   isLoading = false,
@@ -139,13 +152,9 @@ export function DocumentsTable({
         </TableHeader>
         <TableBody>
           {documents.map((document) => {
-            const uploadedDate = document.uploadedAt
-              ? formatDistanceToNow(new Date(document.uploadedAt), {
-                  addSuffix: true,
-                })
-              : formatDistanceToNow(new Date(document.createdAt), {
-                  addSuffix: true,
-                });
+            const uploadedDate = safeFormatDistance(
+              document.uploadedAt || document.createdAt
+            );
 
             return (
               <TableRow key={document.id}>
@@ -196,7 +205,7 @@ export function DocumentsTable({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem asChild>
-                        <Link href={`/dashboard/documents/${document.id}`}>
+                        <Link href={`/documents/${document.id}`}>
                           <Eye className="mr-2 h-4 w-4" />
                           View Details
                         </Link>

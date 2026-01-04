@@ -13,6 +13,19 @@ interface ProcessingLogsProps {
   isLoading?: boolean;
 }
 
+function safeFormatDistance(dateString: string | null | undefined): string {
+  if (!dateString) return "N/A";
+
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return "Invalid date";
+  }
+
+  return formatDistanceToNow(date, {
+    addSuffix: true,
+  });
+}
+
 const ingestionSteps: IngestionStatus[] = [
   IngestionStatus.PENDING,
   IngestionStatus.PARSING,
@@ -22,10 +35,7 @@ const ingestionSteps: IngestionStatus[] = [
   IngestionStatus.COMPLETED,
 ];
 
-export function ProcessingLogs({
-  document,
-  isLoading,
-}: ProcessingLogsProps) {
+export function ProcessingLogs({ document, isLoading }: ProcessingLogsProps) {
   if (isLoading) {
     return (
       <Card>
@@ -69,7 +79,9 @@ export function ProcessingLogs({
     }
   };
 
-  const getStepIcon = (status: "completed" | "active" | "failed" | "pending") => {
+  const getStepIcon = (
+    status: "completed" | "active" | "failed" | "pending"
+  ) => {
     switch (status) {
       case "completed":
         return <CheckCircle2 className="h-5 w-5 text-green-500" />;
@@ -113,9 +125,7 @@ export function ProcessingLogs({
                   {!isLast && (
                     <div
                       className={`w-0.5 h-8 mt-2 ${
-                        status === "completed"
-                          ? "bg-green-500"
-                          : "bg-muted"
+                        status === "completed" ? "bg-green-500" : "bg-muted"
                       }`}
                     />
                   )}
@@ -153,20 +163,14 @@ export function ProcessingLogs({
                     document.ingestionStartedAt && (
                       <p className="text-xs text-muted-foreground">
                         Started{" "}
-                        {formatDistanceToNow(
-                          new Date(document.ingestionStartedAt),
-                          { addSuffix: true }
-                        )}
+                        {safeFormatDistance(document.ingestionStartedAt)}
                       </p>
                     )}
                   {step === IngestionStatus.COMPLETED &&
                     document.ingestionCompletedAt && (
                       <p className="text-xs text-muted-foreground">
                         Completed{" "}
-                        {formatDistanceToNow(
-                          new Date(document.ingestionCompletedAt),
-                          { addSuffix: true }
-                        )}
+                        {safeFormatDistance(document.ingestionCompletedAt)}
                       </p>
                     )}
                   {step === IngestionStatus.FAILED &&
@@ -184,4 +188,3 @@ export function ProcessingLogs({
     </Card>
   );
 }
-

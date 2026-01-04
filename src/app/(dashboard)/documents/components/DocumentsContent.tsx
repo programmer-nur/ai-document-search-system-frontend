@@ -5,8 +5,7 @@ import { toast } from "sonner";
 import { useGetWorkspacesQuery } from "@/features/workspace/services";
 import {
   useGetDocumentsQuery,
-  useLazyGetUploadUrlQuery,
-  useCreateDocumentMutation,
+  useUploadDocumentsMutation,
   useDeleteDocumentMutation,
 } from "@/features/document/services";
 import { DocumentsHeader } from "./DocumentsHeader";
@@ -14,25 +13,6 @@ import { DocumentUpload } from "./DocumentUpload";
 import { DocumentsTable } from "./DocumentsTable";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
-import { DocumentType } from "@/types/document.types";
-
-const FILE_TYPE_MAP: Record<string, DocumentType> = {
-  pdf: DocumentType.PDF,
-  docx: DocumentType.DOCX,
-  doc: DocumentType.DOC,
-  xlsx: DocumentType.XLSX,
-  xls: DocumentType.XLS,
-  pptx: DocumentType.PPTX,
-  ppt: DocumentType.PPT,
-  txt: DocumentType.TXT,
-  md: DocumentType.MD,
-  csv: DocumentType.CSV,
-};
-
-function getDocumentType(file: File): DocumentType {
-  const extension = file.name.split(".").pop()?.toLowerCase() || "";
-  return FILE_TYPE_MAP[extension] || "OTHER";
-}
 
 export function DocumentsContent() {
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>(
@@ -59,8 +39,7 @@ export function DocumentsContent() {
     { skip: !workspaceId }
   );
 
-  const [getUploadUrl] = useLazyGetUploadUrlQuery();
-  const [createDocument] = useCreateDocumentMutation();
+  const [uploadDocuments] = useUploadDocumentsMutation();
   const [deleteDocument] = useDeleteDocumentMutation();
 
   const handleFilesSelected = useCallback(
@@ -70,77 +49,58 @@ export function DocumentsContent() {
         return;
       }
 
+      if (files.length === 0) {
+        return;
+      }
+
       setIsUploading(true);
       const progress: Record<string, number> = {};
 
+      // Initialize progress for all files
+      files.forEach((file) => {
+        progress[file.name] = 0;
+      });
+      setUploadProgress({ ...progress });
+
       try {
-        for (const file of files) {
-          progress[file.name] = 0;
-          setUploadProgress({ ...progress });
+        // Upload all files at once using the new endpoint
+        progress[files[0].name] = 50; // Show progress for first file
+        setUploadProgress({ ...progress });
 
-          try {
-            const uploadUrlResponse = await getUploadUrl({
-              workspaceId,
-              params: {
-                fileName: file.name,
-                contentType: file.type,
-              },
-            }).unwrap();
+        const result = await uploadDocuments({
+          workspaceId,
+          files,
+        }).unwrap();
 
-            const { uploadUrl, s3Key } = uploadUrlResponse.data;
+        // Mark all files as complete
+        files.forEach((file) => {
+          progress[file.name] = 100;
+        });
+        setUploadProgress({ ...progress });
 
-            progress[file.name] = 25;
-            setUploadProgress({ ...progress });
-
-            const uploadResponse = await fetch(uploadUrl, {
-              method: "PUT",
-              body: file,
-              headers: {
-                "Content-Type": file.type,
-              },
-            });
-
-            if (!uploadResponse.ok) {
-              throw new Error("Upload failed");
-            }
-
-            progress[file.name] = 75;
-            setUploadProgress({ ...progress });
-
-            const documentType = getDocumentType(file);
-            const s3Bucket =
-              process.env.NEXT_PUBLIC_S3_BUCKET || "default-bucket";
-            const s3Region = process.env.NEXT_PUBLIC_S3_REGION || "us-east-1";
-
-            await createDocument({
-              workspaceId,
-              data: {
-                name: file.name,
-                originalName: file.name,
-                type: documentType,
-                mimeType: file.type,
-                size: file.size,
-                s3Key,
-                s3Bucket,
-                s3Region,
-              },
-            }).unwrap();
-
-            progress[file.name] = 100;
-            setUploadProgress({ ...progress });
-
-            toast.success(`${file.name} uploaded successfully`);
-          } catch (error: any) {
-            toast.error(`Failed to upload ${file.name}`, {
-              description: error?.data?.message || "Please try again.",
-            });
-            toast.error(`Failed to upload ${file.name}`);
-            delete progress[file.name];
-            setUploadProgress({ ...progress });
-          }
-        }
+        const uploadedCount = result.data?.length || files.length;
+        toast.success(
+          `${uploadedCount} file${
+            uploadedCount > 1 ? "s" : ""
+          } uploaded successfully`
+        );
 
         await refetch();
+      } catch (err) {
+        const error = err as { data?: { message?: string }; message?: string };
+        const errorMessage =
+          error?.data?.message ||
+          error?.message ||
+          "Failed to upload files. Please try again.";
+        toast.error("Upload failed", {
+          description: errorMessage,
+        });
+
+        // Reset progress on error
+        files.forEach((file) => {
+          delete progress[file.name];
+        });
+        setUploadProgress({ ...progress });
       } finally {
         setIsUploading(false);
         setTimeout(() => {
@@ -148,7 +108,7 @@ export function DocumentsContent() {
         }, 2000);
       }
     },
-    [workspaceId, getUploadUrl, createDocument, refetch]
+    [workspaceId, uploadDocuments, refetch]
   );
 
   const handleDelete = useCallback(

@@ -10,18 +10,21 @@ const axiosBaseQuery =
       method?: AxiosRequestConfig["method"];
       data?: AxiosRequestConfig["data"];
       params?: AxiosRequestConfig["params"];
+      formData?: boolean;
     },
     unknown,
     unknown
   > =>
   async ({ url, method = "GET", data, params }) => {
     try {
-      const result = await axiosInstance({
+      const config: AxiosRequestConfig = {
         url,
         method,
         data,
         params,
-      });
+      };
+
+      const result = await axiosInstance(config);
 
       return { data: result.data };
     } catch (axiosError) {
@@ -44,6 +47,13 @@ const axiosBaseQuery =
 export const baseApi = createApi({
   reducerPath: "api",
   baseQuery: axiosBaseQuery(),
-  tagTypes: ["Users", "Auth", "Workspaces", "WorkspaceMembers", "Documents", "Search"],
+  tagTypes: [
+    "Users",
+    "Auth",
+    "Workspaces",
+    "WorkspaceMembers",
+    "Documents",
+    "Search",
+  ],
   endpoints: () => ({}),
 });

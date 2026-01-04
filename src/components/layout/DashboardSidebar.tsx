@@ -35,27 +35,27 @@ const navigationItems = [
   },
   {
     title: "Documents",
-    href: "/dashboard/documents",
+    href: "/documents",
     icon: FileText,
   },
   {
     title: "Ask AI",
-    href: "/dashboard/ask",
+    href: "/ask",
     icon: MessageSquare,
   },
   {
     title: "Search",
-    href: "/dashboard/search",
+    href: "/search",
     icon: Search,
   },
   {
     title: "Activity",
-    href: "/dashboard/activity",
+    href: "/activity",
     icon: History,
   },
   {
     title: "Settings",
-    href: "/dashboard/settings",
+    href: "/settings",
     icon: Settings,
   },
 ];
@@ -63,7 +63,7 @@ const navigationItems = [
 const adminItems = [
   {
     title: "Admin",
-    href: "/dashboard/admin",
+    href: "/admin",
     icon: Shield,
   },
 ];
@@ -71,7 +71,8 @@ const adminItems = [
 export function DashboardSidebar({ userRole }: DashboardSidebarProps) {
   const pathname = usePathname();
 
-  const isAdmin = userRole === UserRole.ADMIN || userRole === UserRole.SUPER_ADMIN;
+  const isAdmin =
+    userRole === UserRole.ADMIN || userRole === UserRole.SUPER_ADMIN;
 
   return (
     <Sidebar>
@@ -82,7 +83,9 @@ export function DashboardSidebar({ userRole }: DashboardSidebarProps) {
             <SidebarMenu>
               {navigationItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                const isActive =
+                  pathname === item.href ||
+                  pathname.startsWith(`${item.href}/`);
 
                 return (
                   <SidebarMenuItem key={item.href}>
@@ -106,7 +109,9 @@ export function DashboardSidebar({ userRole }: DashboardSidebarProps) {
               <SidebarMenu>
                 {adminItems.map((item) => {
                   const Icon = item.icon;
-                  const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  const isActive =
+                    pathname === item.href ||
+                    pathname.startsWith(`${item.href}/`);
 
                   return (
                     <SidebarMenuItem key={item.href}>
@@ -127,4 +132,3 @@ export function DashboardSidebar({ userRole }: DashboardSidebarProps) {
     </Sidebar>
   );
 }
-

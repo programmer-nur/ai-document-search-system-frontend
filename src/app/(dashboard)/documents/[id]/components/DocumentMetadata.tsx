@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, User, Database, Hash, Globe } from "lucide-react";
+import { Calendar, Database, Hash, Globe } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,6 +11,19 @@ import { formatDistanceToNow } from "date-fns";
 interface DocumentMetadataProps {
   document: Document | null;
   isLoading?: boolean;
+}
+
+function safeFormatDistance(dateString: string | null | undefined): string {
+  if (!dateString) return "N/A";
+
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return "Invalid date";
+  }
+
+  return formatDistanceToNow(date, {
+    addSuffix: true,
+  });
 }
 
 const statusColors: Record<
@@ -137,42 +150,30 @@ export function DocumentMetadata({
               {document.uploadedAt && (
                 <p>
                   <span className="font-medium">Uploaded:</span>{" "}
-                  {formatDistanceToNow(new Date(document.uploadedAt), {
-                    addSuffix: true,
-                  })}
+                  {safeFormatDistance(document.uploadedAt)}
                 </p>
               )}
               {document.processedAt && (
                 <p>
                   <span className="font-medium">Processed:</span>{" "}
-                  {formatDistanceToNow(new Date(document.processedAt), {
-                    addSuffix: true,
-                  })}
+                  {safeFormatDistance(document.processedAt)}
                 </p>
               )}
               {document.ingestionStartedAt && (
                 <p>
                   <span className="font-medium">Ingestion Started:</span>{" "}
-                  {formatDistanceToNow(
-                    new Date(document.ingestionStartedAt),
-                    { addSuffix: true }
-                  )}
+                  {safeFormatDistance(document.ingestionStartedAt)}
                 </p>
               )}
               {document.ingestionCompletedAt && (
                 <p>
                   <span className="font-medium">Ingestion Completed:</span>{" "}
-                  {formatDistanceToNow(
-                    new Date(document.ingestionCompletedAt),
-                    { addSuffix: true }
-                  )}
+                  {safeFormatDistance(document.ingestionCompletedAt)}
                 </p>
               )}
               <p>
                 <span className="font-medium">Created:</span>{" "}
-                {formatDistanceToNow(new Date(document.createdAt), {
-                  addSuffix: true,
-                })}
+                {safeFormatDistance(document.createdAt)}
               </p>
             </div>
           </div>
@@ -195,8 +196,7 @@ export function DocumentMetadata({
               <div className="space-y-1 text-sm text-muted-foreground">
                 {Object.entries(document.metadata).map(([key, value]) => (
                   <p key={key}>
-                    <span className="font-medium">{key}:</span>{" "}
-                    {String(value)}
+                    <span className="font-medium">{key}:</span> {String(value)}
                   </p>
                 ))}
               </div>
@@ -207,4 +207,3 @@ export function DocumentMetadata({
     </Card>
   );
 }
-

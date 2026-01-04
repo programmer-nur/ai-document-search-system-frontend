@@ -3,6 +3,7 @@ import axios, {
   AxiosInstance,
   InternalAxiosRequestConfig,
 } from "axios";
+import { getAuthToken, removeAuthToken } from "./auth";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
@@ -20,6 +21,11 @@ axiosInstance.interceptors.request.use(
 
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // Don't set Content-Type for FormData, let browser set it with boundary
+    if (config.data instanceof FormData && config.headers) {
+      delete config.headers["Content-Type"];
     }
 
     return config;
@@ -59,23 +65,9 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-function getAuthToken(): string | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  const token = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("authToken="))
-    ?.split("=")[1];
-
-  return token || null;
-}
-
 function handleUnauthorized() {
   if (typeof window !== "undefined") {
-    document.cookie =
-      "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    removeAuthToken();
     window.location.href = "/login";
   }
 }

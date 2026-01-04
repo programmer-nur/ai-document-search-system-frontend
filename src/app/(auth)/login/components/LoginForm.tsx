@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -22,6 +23,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useLoginMutation } from "@/features/auth";
+import { setAuthToken } from "@/lib/auth";
+import { Eye, EyeOff } from "lucide-react";
 
 const loginSchema = z.object({
   email: z
@@ -34,8 +38,10 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [login, { isLoading }] = useLoginMutation();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -46,23 +52,29 @@ export function LoginForm() {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
-    setIsSubmitting(true);
     setError(null);
 
     try {
-      // TODO: Implement API call to login endpoint
-      // const response = await loginUser(data);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await login(data).unwrap();
 
-      // Simulate error for demo
-      // setError("Invalid email or password");
+      if (response.success && response.data?.token) {
+        setAuthToken(response.data.token);
+        router.push("/dashboard");
+      } else {
+        setError("Login failed. Please try again.");
+      }
+    } catch (err: unknown) {
+      const error = err as {
+        data?: { message?: string; error?: string };
+        status?: number;
+      };
 
-      // On success, redirect to dashboard
-      // router.push("/dashboard");
-    } catch (err) {
-      setError("An error occurred. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+      const errorMessage =
+        error?.data?.message ||
+        error?.data?.error ||
+        "Invalid email or password. Please try again.";
+
+      setError(errorMessage);
     }
   };
 
@@ -117,12 +129,31 @@ export function LoginForm() {
                     </Link>
                   </div>
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter your password"
-                      autoComplete="current-password"
-                      {...field}
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        autoComplete="current-password"
+                        className="pr-10"
+                        {...field}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -133,9 +164,9 @@ export function LoginForm() {
               type="submit"
               className="w-full"
               size="lg"
-              disabled={isSubmitting || !form.formState.isValid}
+              disabled={isLoading || !form.formState.isValid}
             >
-              {isSubmitting ? "Signing in..." : "Sign in"}
+              {isLoading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
         </Form>

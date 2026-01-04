@@ -115,6 +115,50 @@ export const documentApi = baseApi.injectEndpoints({
         "Documents",
       ],
     }),
+
+    uploadDocument: builder.mutation<
+      CreateDocumentResponse,
+      { workspaceId: string; file: File }
+    >({
+      query: ({ workspaceId, file }) => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        return {
+          url: `/documents/workspaces/${workspaceId}/documents/upload`,
+          method: "POST",
+          body: formData,
+          formData: true,
+        };
+      },
+      invalidatesTags: (result, error, { workspaceId }) => [
+        { type: "Documents", id: workspaceId },
+        "Documents",
+      ],
+    }),
+
+    uploadDocuments: builder.mutation<
+      GetDocumentsResponse,
+      { workspaceId: string; files: File[] }
+    >({
+      query: ({ workspaceId, files }) => {
+        const formData = new FormData();
+        files.forEach((file) => {
+          formData.append("files", file);
+        });
+
+        return {
+          url: `/documents/workspaces/${workspaceId}/documents/upload-multiple`,
+          method: "POST",
+          body: formData,
+          formData: true,
+        };
+      },
+      invalidatesTags: (result, error, { workspaceId }) => [
+        { type: "Documents", id: workspaceId },
+        "Documents",
+      ],
+    }),
   }),
 });
 
@@ -127,4 +171,6 @@ export const {
   useUpdateDocumentMutation,
   useDeleteDocumentMutation,
   useReindexDocumentMutation,
+  useUploadDocumentMutation,
+  useUploadDocumentsMutation,
 } = documentApi;

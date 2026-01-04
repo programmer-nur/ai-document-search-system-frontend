@@ -1,11 +1,10 @@
 import type { User, UserRole } from "./user.types";
 
 export interface RegisterInput {
+  name: string;
   email: string;
   password: string;
-  firstName?: string;
-  lastName?: string;
-  role?: UserRole;
+  workspaceName: string;
 }
 
 export interface LoginInput {

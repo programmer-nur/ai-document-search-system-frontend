@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -22,6 +23,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useRegisterMutation } from "@/features/auth";
+import { setAuthToken } from "@/lib/auth";
+import { Eye, EyeOff } from "lucide-react";
 
 const registerSchema = z
   .object({
@@ -43,8 +47,10 @@ const registerSchema = z
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export function RegisterForm() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [register, { isLoading }] = useRegisterMutation();
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -57,24 +63,29 @@ export function RegisterForm() {
   });
 
   const onSubmit = async (data: RegisterFormValues) => {
-    setIsSubmitting(true);
     setError(null);
 
     try {
-      // TODO: Implement API call to register endpoint
-      // Flow: Create workspace -> Create admin user -> Redirect to dashboard
-      // const response = await registerUser(data);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await register(data).unwrap();
 
-      // Simulate error for demo
-      // setError("Email already exists or workspace name is taken");
+      if (response.success && response.data?.token) {
+        setAuthToken(response.data.token);
+        router.push("/dashboard");
+      } else {
+        setError("Registration failed. Please try again.");
+      }
+    } catch (err: unknown) {
+      const error = err as {
+        data?: { message?: string; error?: string };
+        status?: number;
+      };
 
-      // On success, redirect to dashboard
-      // router.push("/dashboard");
-    } catch (err) {
-      setError("An error occurred. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+      const errorMessage =
+        error?.data?.message ||
+        error?.data?.error ||
+        "Registration failed. Email may already exist or workspace name is taken.";
+
+      setError(errorMessage);
     }
   };
 
@@ -140,12 +151,29 @@ export function RegisterForm() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Create a strong password"
-                      autoComplete="new-password"
-                      {...field}
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Create a strong password"
+                        autoComplete="new-password"
+                        className="pr-10"
+                        {...field}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -175,9 +203,9 @@ export function RegisterForm() {
               type="submit"
               className="w-full"
               size="lg"
-              disabled={isSubmitting || !form.formState.isValid}
+              disabled={isLoading || !form.formState.isValid}
             >
-              {isSubmitting ? "Creating account..." : "Create account"}
+              {isLoading ? "Creating account..." : "Create account"}
             </Button>
           </form>
         </Form>
