@@ -14,9 +14,12 @@ import type {
 
 export const documentApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getUploadUrl: builder.query<GetUploadUrlResponse, { workspaceId: string; params: GetUploadUrlParams }>({
+    getUploadUrl: builder.query<
+      GetUploadUrlResponse,
+      { workspaceId: string; params: GetUploadUrlParams }
+    >({
       query: ({ workspaceId, params }) => ({
-        url: `/workspaces/${workspaceId}/documents/upload-url`,
+        url: `/documents/workspaces/${workspaceId}/documents/upload-url`,
         method: "GET",
         params: {
           fileName: params.fileName,
@@ -30,7 +33,7 @@ export const documentApi = baseApi.injectEndpoints({
       { workspaceId: string; data: CreateDocumentInput }
     >({
       query: ({ workspaceId, data }) => ({
-        url: `/workspaces/${workspaceId}/documents`,
+        url: `/documents/workspaces/${workspaceId}/documents`,
         method: "POST",
         data,
       }),
@@ -45,7 +48,7 @@ export const documentApi = baseApi.injectEndpoints({
       { workspaceId: string; params?: DocumentQueryParams }
     >({
       query: ({ workspaceId, params }) => ({
-        url: `/workspaces/${workspaceId}/documents`,
+        url: `/documents/workspaces/${workspaceId}/documents`,
         method: "GET",
         params: params
           ? {
@@ -54,7 +57,9 @@ export const documentApi = baseApi.injectEndpoints({
               ...(params.search && { search: params.search }),
               ...(params.type && { type: params.type }),
               ...(params.status && { status: params.status }),
-              ...(params.ingestionStatus && { ingestionStatus: params.ingestionStatus }),
+              ...(params.ingestionStatus && {
+                ingestionStatus: params.ingestionStatus,
+              }),
             }
           : undefined,
       }),
@@ -96,6 +101,20 @@ export const documentApi = baseApi.injectEndpoints({
         "Documents",
       ],
     }),
+
+    reindexDocument: builder.mutation<
+      { success: boolean; statusCode: number; message: string; data: null },
+      string
+    >({
+      query: (id) => ({
+        url: `/documents/${id}/reindex`,
+        method: "POST",
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Documents", id },
+        "Documents",
+      ],
+    }),
   }),
 });
 
@@ -107,5 +126,5 @@ export const {
   useGetDocumentByIdQuery,
   useUpdateDocumentMutation,
   useDeleteDocumentMutation,
+  useReindexDocumentMutation,
 } = documentApi;
-

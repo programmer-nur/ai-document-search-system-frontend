@@ -130,8 +130,10 @@ export function DocumentsContent() {
             setUploadProgress({ ...progress });
 
             toast.success(`${file.name} uploaded successfully`);
-          } catch (error) {
-            console.error(`Error uploading ${file.name}:`, error);
+          } catch (error: any) {
+            toast.error(`Failed to upload ${file.name}`, {
+              description: error?.data?.message || "Please try again.",
+            });
             toast.error(`Failed to upload ${file.name}`);
             delete progress[file.name];
             setUploadProgress({ ...progress });
@@ -160,7 +162,6 @@ export function DocumentsContent() {
         toast.success("Document deleted successfully");
         await refetch();
       } catch (error) {
-        console.error("Error deleting document:", error);
         toast.error("Failed to delete document");
       }
     },
